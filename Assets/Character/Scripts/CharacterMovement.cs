@@ -9,9 +9,14 @@ public class CharacterMovement : MonoBehaviour
     private Rigidbody _rb;
 
     private float _speed;
-    [SerializeField] private float _maxSpeed;
+    private float _maxSpeed;
+    [SerializeField] private float _walkSpeed;
+    [SerializeField] private float _runSpeed;
+    [SerializeField] private float _rotationSpeed;
+
     private void Start()
     {
+        _maxSpeed = _walkSpeed;
         _speed = _maxSpeed;
         _animator = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody>();
@@ -28,6 +33,10 @@ public class CharacterMovement : MonoBehaviour
             _rb.AddForce(transform.forward * _speed, ForceMode.Impulse);
         }
 
+        transform.Rotate(0, Input.GetAxis("Horizontal") * _rotationSpeed * Time.deltaTime, 0);
+
+
+
         ClampVelocity();
     }
 
@@ -42,3 +51,4 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 }
+да я люблю сосать ч...упачупс
