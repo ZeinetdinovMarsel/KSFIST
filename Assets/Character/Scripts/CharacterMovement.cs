@@ -9,10 +9,11 @@ public class CharacterMovement : MonoBehaviour
     private Rigidbody _rb;
 
     private float _speed;
-    [SerializeField] private float _maxSpeed;
+    [SerializeField] private float _rotateSpeed = 1;
+    [SerializeField] private float _walkSpeed = 4;
+    [SerializeField] private float _runSpeed = 7;
     private void Start()
     {
-        _speed = _maxSpeed;
         _animator = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody>();
     }
@@ -23,22 +24,37 @@ public class CharacterMovement : MonoBehaviour
         _animator.SetBool("walk", movementDirection > 0);
         _animator.SetBool("run", Input.GetKey(KeyCode.LeftShift));
 
+        _speed = Input.GetKey(KeyCode.LeftShift) ? _runSpeed : _walkSpeed;
+
         if (movementDirection > 0)
         {
             _rb.AddForce(transform.forward * _speed, ForceMode.Impulse);
         }
 
+        transform.Rotate(0, Input.GetAxis("Horizontal") * _rotateSpeed * Time.deltaTime, 0);
+        ClampRotation();
         ClampVelocity();
     }
-
+    private void ClampRotation()
+    {
+        Vector3 rotationAngles = transform.rotation.eulerAngles;
+        rotationAngles.y = rotationAngles.y > 180 ? rotationAngles.y - 360 : rotationAngles.y;
+        rotationAngles.y = Mathf.Clamp(rotationAngles.y, -45, 45);
+        transform.rotation = Quaternion.Euler(rotationAngles);
+    }
     private void ClampVelocity()
     {
-        float velocity = _rb.velocity.magnitude;
+        Vector3 vel = _rb.velocity;
+        vel.y = 0;
+        float velocity = vel.magnitude;
 
-        if (velocity > _maxSpeed)
+        if (velocity > _speed)
         {
-            Vector3 movementDirection = _rb.velocity.normalized;
-            _rb.velocity = movementDirection * _maxSpeed;
+            Vector3 movementDirection = vel.normalized;
+            Vector3 rbVelocity = movementDirection * _speed;
+            rbVelocity.y = _rb.velocity.y;
+            _rb.velocity = rbVelocity;
         }
     }
+
 }
